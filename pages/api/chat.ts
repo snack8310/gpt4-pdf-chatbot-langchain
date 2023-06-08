@@ -3,8 +3,6 @@ import {OpenAIEmbeddings} from 'langchain/embeddings/openai';
 import {QdrantVectorStore} from "langchain/vectorstores/qdrant";
 
 import {makeChain} from '@/utils/makechain';
-import {pinecone} from '@/utils/pinecone-client';
-import {PINECONE_INDEX_NAME, PINECONE_NAME_SPACE} from '@/config/pinecone';
 
 export default async function handler(
     req: NextApiRequest,
@@ -27,18 +25,6 @@ export default async function handler(
     const sanitizedQuestion = question.trim().replaceAll('\n', ' ');
 
     try {
-        const index = pinecone.Index(PINECONE_INDEX_NAME);
-
-        /* create vectorstore*/
-        // const vectorStore = await PineconeStore.fromExistingIndex(
-        //   new OpenAIEmbeddings({}),
-        //   {
-        //     pineconeIndex: index,
-        //     textKey: 'text',
-        //     namespace: PINECONE_NAME_SPACE, //namespace comes from your config folder
-        //   },
-        // );
-
         const vectorStore = await QdrantVectorStore.fromExistingCollection(
             new OpenAIEmbeddings(),
             {
