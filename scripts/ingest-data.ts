@@ -41,7 +41,8 @@ export const run = async () => {
         //   textKey: 'text',
         // });
 
-        await QdrantVectorStore.fromDocuments(
+        let instance = await
+            QdrantVectorStore.fromDocuments(
             docs,
             new OpenAIEmbeddings(),
             {
@@ -49,6 +50,7 @@ export const run = async () => {
                 collectionName: "aaab_test_collection",
             }
         );
+        console.log(instance)
 
     } catch (error) {
         console.log('error', error);
