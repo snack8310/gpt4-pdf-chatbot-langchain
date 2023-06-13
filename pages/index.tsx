@@ -12,6 +12,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import UploadFileComponent from './upload'
 
 export default function Home() {
   const [query, setQuery] = useState<string>('');
@@ -259,6 +260,11 @@ export default function Home() {
               </div>
             )}
           </main>
+        </div>
+        <div className="flex flex-col gap-4">
+          <div className="button filed">
+            <UploadFileComponent uploadUrl="/api/upload"/>
+          </div>
         </div>
         <footer className="m-auto p-4">
           <a href="https://twitter.com/mayowaoshin">
