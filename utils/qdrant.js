@@ -1,8 +1,32 @@
-import { QdrantClient } from "@qdrant/js-client-rest";
-import { v4 as uuid } from "uuid";
-import { VectorStore } from "langchain/vectorstores/base";
-import { Document } from "langchain/document";
+import {QdrantClient} from "@qdrant/js-client-rest";
+import {v4 as uuid} from "uuid";
+import {VectorStore} from "langchain/vectorstores/base";
+import {Document} from "langchain/document";
 
+async function add_doc_chunk(x) {
+    let data = JSON.stringify({
+        
+        vectorId: x.id,
+        pageContent: x.payload.content,
+        source: x.payload.metadata.source,
+        pageNumber: x.payload.metadata.loc.pageNumber,
+        linesFrom: x.payload.metadata.loc.lines.from,
+        linesTo: x.payload.metadata.loc.lines.to,
+        acitve: true,
+        totalPage:x.payload.metadata.totalPage
+    });
+    console.log(data);
+    await fetch(`http://localhost:8081/doc_chunks/add`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: data
+    })
+        .then(response => response.json())
+        .then(data => console.log(data))
+        .catch(error => console.error(error));
+}
 
 export class QdrantVectorStore extends VectorStore {
     constructor(embeddings, args) {
@@ -33,9 +57,9 @@ export class QdrantVectorStore extends VectorStore {
         }
         this.client =
             args.client ||
-                new QdrantClient({
-                    url,
-                });
+            new QdrantClient({
+                url,
+            });
         this.collectionName = args.collectionName ?? "documents";
         this.collectionConfig = args.collectionConfig ?? {
             vectors: {
@@ -44,10 +68,12 @@ export class QdrantVectorStore extends VectorStore {
             },
         };
     }
+
     async addDocuments(documents) {
-        const texts = documents.map(({ pageContent }) => pageContent);
+        const texts = documents.map(({pageContent}) => pageContent);
         await this.addVectors(await this.embeddings.embedDocuments(texts), documents);
     }
+
     async addVectors(vectors, documents) {
         if (vectors.length === 0) {
             return;
@@ -61,12 +87,13 @@ export class QdrantVectorStore extends VectorStore {
                 metadata: documents[idx].metadata,
             },
         }));
-        console.log(points)
+        points.map(x => add_doc_chunk(x));
         await this.client.upsert(this.collectionName, {
             wait: true,
             points,
         });
     }
+
     async similaritySearchVectorWithScore(query, k, filter) {
         if (!query) {
             return [];
@@ -86,6 +113,7 @@ export class QdrantVectorStore extends VectorStore {
         ]);
         return result;
     }
+
     async ensureCollection() {
         const response = await this.client.getCollections();
         const collectionNames = response.collections.map((collection) => collection.name);
@@ -93,6 +121,7 @@ export class QdrantVectorStore extends VectorStore {
             await this.client.createCollection(this.collectionName, this.collectionConfig);
         }
     }
+
     static async fromTexts(texts, metadatas, embeddings, dbConfig) {
         const docs = [];
         for (let i = 0; i < texts.length; i += 1) {
@@ -105,11 +134,13 @@ export class QdrantVectorStore extends VectorStore {
         }
         return QdrantVectorStore.fromDocuments(docs, embeddings, dbConfig);
     }
+
     static async fromDocuments(docs, embeddings, dbConfig) {
         const instance = new this(embeddings, dbConfig);
         await instance.addDocuments(docs);
         return instance;
     }
+
     static async fromExistingCollection(embeddings, dbConfig) {
         const instance = new this(embeddings, dbConfig);
         await instance.ensureCollection();
