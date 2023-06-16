@@ -7,9 +7,14 @@ export default function Layout({ children }: LayoutProps) {
     <div className="mx-auto flex flex-col space-y-4">
       <header className="container sticky top-0 z-40 bg-white">
         <div className="h-16 border-b border-b-slate-200 py-4">
-          <nav className="ml-4 pl-6">
-            <a href="#" className="hover:text-slate-600 cursor-pointer">
+          <nav className="ml-4 pl-6" style={{display:"inline"}}>
+            <a href="/" className="hover:text-slate-600 cursor-pointer">
               Home
+            </a>
+          </nav>
+          <nav className="ml-4 pl-6" style={{display:"inline"}}>
+            <a href="/docs" className="hover:text-slate-600 cursor-pointer">
+              Docs
             </a>
           </nav>
         </div>
