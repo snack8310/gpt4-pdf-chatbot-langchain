@@ -1,14 +1,42 @@
 import {RecursiveCharacterTextSplitter} from 'langchain/text_splitter';
 import {OpenAIEmbeddings} from 'langchain/embeddings/openai';
-import { QdrantVectorStore } from "langchain/vectorstores/qdrant";
+import {QdrantVectorStore} from "../utils/qdrant";
 
 import {PDFLoader} from 'langchain/document_loaders/fs/pdf';
 import {DirectoryLoader} from 'langchain/document_loaders/fs/directory';
+
+// import fs from "fs";
+// import * as path from 'path';
 
 /* Name of directory to retrieve your files from 
    Make sure to add your PDF files inside the 'docs' folder
 */
 const filePath = 'docs';
+
+export const run_path = async (doc_path: string) => {
+    const loader = new PDFLoader(doc_path);
+    const rawDocs = await loader.load();
+
+    /* Split text into chunks */
+    const textSplitter = new RecursiveCharacterTextSplitter({
+        chunkSize: 1000,
+        chunkOverlap: 200,
+    });
+
+    const docs = await textSplitter.splitDocuments(rawDocs);
+    console.log('split docs', docs);
+
+    console.log('creating vector store...');
+    /*create and store the embeddings in the vectorStore*/
+    await QdrantVectorStore.fromDocuments(
+        docs,
+        new OpenAIEmbeddings(),
+        {
+            url: process.env.QDRANT_URL,
+            collectionName: "aaab_test_collection",
+        }
+    );
+}
 
 export const run = async () => {
     try {
@@ -31,16 +59,6 @@ export const run = async () => {
 
         console.log('creating vector store...');
         /*create and store the embeddings in the vectorStore*/
-        const embeddings = new OpenAIEmbeddings();
-        // const index = pinecone.Index(PINECONE_INDEX_NAME); //change to your own index name
-
-        //embed the PDF documents
-        // await PineconeStore.fromDocuments(docs, embeddings, {
-        //   pineconeIndex: index,
-        //   namespace: PINECONE_NAME_SPACE,
-        //   textKey: 'text',
-        // });
-
         await QdrantVectorStore.fromDocuments(
             docs,
             new OpenAIEmbeddings(),
