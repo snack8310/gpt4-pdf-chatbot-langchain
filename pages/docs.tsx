@@ -25,7 +25,7 @@ const DocsComponent: React.FC = () => {
       .then(json => {
         console.log("json", json)
         console.log("json.results", json.results)
-        setData(json)
+        setData(json["data"])
       })
       // .catch(error => console.error('请求出错:', error));
 
