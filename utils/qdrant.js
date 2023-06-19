@@ -23,11 +23,11 @@ async function add_doc_chunk(x) {
         updated_time: formatDate(new Date())
     });
     console.log(data);
-    fetch(`http://127.0.0.1:5001/add/chunk`, {
+    console.log(process.env.ADD_DOC_CHUNK_URL)
+    fetch(process.env.ADD_DOC_CHUNK_URL, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Origin': 'http://127.0.0.1:5001'
         },
         body: data
     })
