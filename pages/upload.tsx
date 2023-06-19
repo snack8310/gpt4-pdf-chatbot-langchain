@@ -27,8 +27,7 @@ async function add_doc(file_name: string, file_path: string) {
     });
 
     let doc_id = 0;
-    // @ts-ignore
-    fetch(process.env.ADD_DOC_URL, {
+   await fetch(`http://127.0.0.1:5001/add/doc`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
