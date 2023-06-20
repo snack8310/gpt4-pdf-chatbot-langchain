@@ -18,13 +18,12 @@ const DocsTable = ({ refresh, pagination, tableData}) => {
       const response = fetch(`http://127.0.0.1:5000/delete/doc/${record.id}`, {
         method: 'POST',
 
-      }).then(res => {
+      })
+        .then(res =>{
           console.log("delete res", res)
-          // return res.json()
-        })
-        .then(() =>{
+
           api.info({
-            message: `删除成功`,
+            message: res.status === 200 ? '删除成功' : '删除失败',
             placement: 'top',
           })
         })

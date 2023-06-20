@@ -17,16 +17,13 @@ const ChunkTable = ({ refresh, pagination, tableData}) => {
     try {
       fetch(`http://127.0.0.1:5000/delete/chunk/${record.id}`, {
         method: 'POST'
-      }).then(res => {
+      })
+        .then(res =>{
           console.log("delete res", res)
-          // return res.json()
-        })
-        .then(() =>{
-          api.info({
-            message: `删除成功`,
-            placement: 'top',
+            api.info({
+              message: res.status === 200 ? '删除成功' : '删除失败',
+              placement: 'top',
           })
-          refresh && refresh()
         })
         .catch(error => {
           api.info({
@@ -40,7 +37,7 @@ const ChunkTable = ({ refresh, pagination, tableData}) => {
       alert("删除失败")
       console.log(e)
     }
-
+    refresh && refresh()
   }
 
   const columns = [
