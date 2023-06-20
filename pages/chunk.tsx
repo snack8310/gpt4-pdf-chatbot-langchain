@@ -5,8 +5,10 @@ import {Docs} from "@/types/docs";
 import ChunkTable from "@/components/ChunkTable";
 
 const Chunk = () => {
+  const PAGE_SIZE = 5
+
   // const [data, setData] = React.useState<Docs[]>([])
-  const [page, setPage] = useState({ pageSize: 5, current: 1, total: 0 })
+  const [page, setPage] = useState({ pageSize: PAGE_SIZE, current: 1, total: 0 })
   const [tableData, setTableData] = useState([])
 
   const router = useRouter();
@@ -14,7 +16,7 @@ const Chunk = () => {
   useEffect(() => {
     // 在页面加载时打印接收到的 id 参数
     console.log(id);
-    fetchData({ id })
+    fetchData({ id, current: 1, pageSize: PAGE_SIZE })
     .then(res => {
       console.log("res", res)
       return res.json()
@@ -24,24 +26,18 @@ const Chunk = () => {
       console.log("json.results", json.results)
       // setData(json["data"])
       setTableData(json["data"])
+      setPage(json["pageInfo"])
     })
-
-    // .catch(error => console.error('请求出错:', error));
-
-    // console.log(data)
   }, [])
 
   const fetchData = (params: any) => {
-    return fetch(`http://127.0.0.1:5000//getAll/chunk/${id}?current=${params.current}&pageSize=${params.pageSize}`)
-      // .then(res => {
-      //   console.log("res", res)
-      //   return res.json()
-      // })
-      // .then(json => {
-      //   console.log("json", json)
-      //   console.log("json.results", json.results)
-      //   setData(json["data"])
-      // })
+    return fetch(`http://127.0.0.1:5000/getAll/chunk/${id}?current=${params.current}&pageSize=${params.pageSize}`)
+
+  }
+
+  const refresh = () => {
+    const { current, pageSize } = page
+    queryTableData({ id, current, pageSize })
   }
 
 
@@ -55,7 +51,7 @@ const Chunk = () => {
 
   const queryTableData = (params={}) => {
     // const { current, pageSize } = page
-    const { current,id, pageSize } = params
+    const { current, id, pageSize } = params
     console.log("current, pageSize", current)
     fetchData({ current, id, pageSize })
       .then((res) => {
@@ -64,7 +60,7 @@ const Chunk = () => {
       })
       .then((res) => {
         if (!res) {
-          setPage({ pageSize: 5, current: 1, total: 0 })
+          setPage({ pageSize: PAGE_SIZE, current: 1, total: 0 })
           setTableData([])
         }
         if (res['pageInfo']) {
@@ -74,7 +70,7 @@ const Chunk = () => {
       })
       .catch((err) => {
         setTableData([])
-        setPage({ pageSize: 5, current: 1, total: 0 })
+        setPage({ pageSize: PAGE_SIZE, current: 1, total: 0 })
       })
   }
 
@@ -85,10 +81,11 @@ const Chunk = () => {
       <Layout>
         <div className="chunk">
           <ChunkTable
+            refresh={refresh}
             tableData={tableData}
             pagination={{
               ...page,
-              showTotal: (total) => `共${total}条`,
+              showTotal: (total:number) => `共${total}条`,
               showSizeChanger: false,
               onChange: onPageChange,
             }}

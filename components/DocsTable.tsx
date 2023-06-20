@@ -1,22 +1,23 @@
 import {Button, notification, Space, Table} from "antd";
 import React from "react";
-import PropTypes from "prop-types";
+import {useRouter} from "next/router";
 
 
 const renderEmpty = (text: any) => {
   return text || '-'
 }
 
-const ChunkTable = ({ refresh, pagination, tableData}) => {
+const DocsTable = ({ refresh, pagination, tableData}) => {
 
+  const router = useRouter();
   const [api, contextHolder] = notification.useNotification();
 
-  console.log("tableData", tableData)
   function handleDelete(record: any) {
     console.log("delete record", record)
     try {
-      fetch(`http://127.0.0.1:5000/delete/chunk/${record.id}`, {
-        method: 'POST'
+      const response = fetch(`http://127.0.0.1:5000/delete/doc/${record.id}`, {
+        method: 'POST',
+
       }).then(res => {
           console.log("delete res", res)
           // return res.json()
@@ -26,7 +27,6 @@ const ChunkTable = ({ refresh, pagination, tableData}) => {
             message: `删除成功`,
             placement: 'top',
           })
-          refresh && refresh()
         })
         .catch(error => {
           api.info({
@@ -35,38 +35,35 @@ const ChunkTable = ({ refresh, pagination, tableData}) => {
           })
           console.error('请求出错:', error)
         })
-
-    } catch (e) {
+      }
+     catch (e) {
       alert("删除失败")
       console.log(e)
-    }
+     }
 
+    refresh && refresh()
+  }
+
+  async function handleView(record: any) {
+    console.log("id", record.id)
+
+    await router.push(`/chunk?id=${record.id}`); // 替换为实际的新页面路径
   }
 
   const columns = [
     {
-      title: '向量编号',
-      dataIndex: 'vector_id',
+      title: '文档编号',
+      dataIndex: 'id',
       render: renderEmpty,
     },
     {
-      title: '文章内容',
-      dataIndex: 'page_content',
+      title: '文档名称',
+      dataIndex: 'docs_name',
       render: renderEmpty,
     },
     {
-      title: '页号',
-      dataIndex: 'page_number',
-      render: renderEmpty,
-    },
-    {
-      title: '起始行数',
-      dataIndex: 'lines_from',
-      render: renderEmpty,
-    },
-    {
-      title: '结束行数',
-      dataIndex: 'lines_to',
+      title: '总页数',
+      dataIndex: 'total_page',
       render: renderEmpty,
     },
     {
@@ -76,7 +73,12 @@ const ChunkTable = ({ refresh, pagination, tableData}) => {
       render: (_: any, record: any) => {
         return (
           <div className="view-download-container">
-            <Button danger type="text" onClick={() => handleDelete(record)}>删除</Button>
+            <Space direction="horizontal">
+              <Space wrap>
+                <Button onClick={() => handleView(record)}>查看</Button>
+                <Button danger type="text" onClick={() => handleDelete(record)}>删除</Button>
+              </Space>
+            </Space>
           </div>
         )
       },
@@ -102,9 +104,4 @@ const ChunkTable = ({ refresh, pagination, tableData}) => {
   )
 }
 
-ChunkTable.propTypes = {
-  pagination: PropTypes.object.isRequired,
-  tableData: PropTypes.array.isRequired,
-}
-
-export default ChunkTable;
+export default DocsTable
