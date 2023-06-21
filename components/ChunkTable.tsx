@@ -7,6 +7,7 @@ const renderEmpty = (text: any) => {
   return text || '-'
 }
 
+// @ts-ignore
 const ChunkTable = ({ refresh, pagination, tableData}) => {
 
   const [api, contextHolder] = notification.useNotification();

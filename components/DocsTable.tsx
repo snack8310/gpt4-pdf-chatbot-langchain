@@ -7,6 +7,7 @@ const renderEmpty = (text: any) => {
   return text || '-'
 }
 
+// @ts-ignore
 const DocsTable = ({ refresh, pagination, tableData}) => {
 
   const router = useRouter();

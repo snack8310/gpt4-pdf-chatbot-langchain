@@ -53,6 +53,7 @@ const DocsComponent: React.FC = () => {
 
   const queryTableData = (params={}) => {
     // const { current, pageSize } = page
+    // @ts-ignore
     const { current, pageSize } = params
     console.log("current, pageSize", current, pageSize)
     fetchData({ current, pageSize })
@@ -112,7 +113,7 @@ const DocsComponent: React.FC = () => {
           tableData={data}
           pagination={{
             ...page,
-            showTotal: (total) => `共${total}条`,
+            showTotal: (total:number) => `共${total}条`,
             showSizeChanger: false,
             onChange: onPageChange,
           }}

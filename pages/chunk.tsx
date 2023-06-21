@@ -51,6 +51,7 @@ const Chunk = () => {
 
   const queryTableData = (params={}) => {
     // const { current, pageSize } = page
+    // @ts-ignore
     const { current, id, pageSize } = params
     console.log("current, pageSize", current)
     fetchData({ current, id, pageSize })
